@@ -117,7 +117,7 @@
   <line x1="195" y1="572" x2="195" y2="602" class="db"/>
   <path d="M110,610 A85,10 0 0 1 280,610 V670 A85,10 0 0 1 110,670 Z" class="store"/>
   <path d="M110,610 A85,10 0 0 0 280,610" class="store" fill="none"/>
-  <text x="195" y="640" class="t c" font-size="14">MongoDB  :27017</text>
+  <text x="195" y="640" class="t c" font-size="14">MongoDB  :27018</text>
   <text x="195" y="658" class="s c">replica set rs0 · products</text>
 
   <line x1="475" y1="572" x2="475" y2="602" class="db"/>
