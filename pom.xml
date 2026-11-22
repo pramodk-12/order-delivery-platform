@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Spring Boot parent gives us dependency + plugin management for the whole platform -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.9</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.reactiveplatform</groupId>
+    <artifactId>reactive-platform</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Reactive Order &amp; Delivery Platform</name>
+    <description>Microservices playground for Reactive Programming, Spring WebFlux, Kafka and reactive/relational databases</description>
+
+    <modules>
+        <module>common</module>
+        <module>reactor-playground</module>
+        <module>api-gateway</module>
+        <module>product-service</module>
+        <module>inventory-service</module>
+        <module>order-service</module>
+        <module>payment-service</module>
+        <module>customer-service</module>
+        <module>notification-service</module>
+        <module>tracking-service</module>
+    </modules>
+
+    <properties>
+        <java.version>21</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Spring Cloud 2025.1.x (Oakwood) is the release train for Spring Boot 4.0.x -->
+        <spring-cloud.version>2025.1.4</spring-cloud.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.reactiveplatform</groupId>
+                <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
