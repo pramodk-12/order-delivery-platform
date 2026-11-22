@@ -1,0 +1,200 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1010" viewBox="0 0 1400 1010" font-family="'Segoe UI', Arial, sans-serif">
+  <title>Phase 1 - Reactor mental model</title>
+  <defs>
+    <marker id="aGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#455A64"/></marker>
+    <marker id="aBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1565C0"/></marker>
+    <marker id="aGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2E7D32"/></marker>
+    <style>
+      .pt   { font-size: 17px; font-weight: 700; fill: #1a1a1a; }
+      .t    { font-size: 14px; font-weight: 600; fill: #1a1a1a; }
+      .s    { font-size: 12.5px; fill: #37474F; }
+      .xs   { font-size: 11px; fill: #546E7A; }
+      .code { font-family: Consolas, 'Cascadia Mono', monospace; font-size: 12px; fill: #1a1a1a; }
+      .c    { text-anchor: middle; }
+      .e    { text-anchor: end; }
+      .panel{ fill: #FFFFFF; stroke: #CFD8DC; stroke-width: 1.4; }
+      .neu  { fill: #FAFAFA; stroke: #757575; stroke-width: 1.3; }
+      .main { fill: #ECEFF1; stroke: #78909C; stroke-width: 1.3; }
+      .be   { fill: #F3E5F5; stroke: #7B1FA2; stroke-width: 1.3; }
+      .par  { fill: #E8F5E9; stroke: #2E7D32; stroke-width: 1.3; }
+      .opBe { fill: #FFFFFF; stroke: #7B1FA2; stroke-width: 1.5; stroke-dasharray: 5 3; }
+      .opPar{ fill: #FFFFFF; stroke: #2E7D32; stroke-width: 1.5; stroke-dasharray: 5 3; }
+      .lane { fill: #E3F2FD; stroke: #1565C0; stroke-width: 1; }
+      .grid { stroke: #ECEFF1; stroke-width: 1; }
+      .life { stroke: #B0BEC5; stroke-width: 1.4; stroke-dasharray: 5 4; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="1010" fill="#F7F9FA"/>
+
+  <text x="40" y="46" font-size="26" font-weight="700" fill="#1a1a1a">Phase 1 · Reactor mental model</text>
+  <text x="40" y="72" class="s" font-size="14">No services change in Phase 1 (see target-architecture.svg). This is what the 73 tests in reactor-playground prove.</text>
+
+  <!-- =========================================================== A: protocol -->
+  <rect x="40" y="96" width="640" height="434" rx="14" class="panel"/>
+  <text x="60" y="124" class="pt">A · Reactive Streams protocol  (Ex06)</text>
+
+  <rect x="90" y="142" width="150" height="36" rx="8" class="neu"/><text x="165" y="165" class="t c">Subscriber</text>
+  <rect x="480" y="142" width="150" height="36" rx="8" class="neu"/><text x="555" y="165" class="t c">Publisher</text>
+  <line x1="165" y1="178" x2="165" y2="495" class="life"/>
+  <line x1="555" y1="178" x2="555" y2="495" class="life"/>
+
+  <line x1="167" y1="210" x2="551" y2="210" stroke="#455A64" stroke-width="1.6" marker-end="url(#aGray)"/>
+  <text x="360" y="203" class="code c">subscribe(subscriber)</text>
+  <line x1="553" y1="245" x2="169" y2="245" stroke="#455A64" stroke-width="1.6" marker-end="url(#aGray)"/>
+  <text x="360" y="238" class="code c">onSubscribe(subscription)</text>
+  <line x1="167" y1="280" x2="551" y2="280" stroke="#1565C0" stroke-width="2" marker-end="url(#aBlue)"/>
+  <text x="360" y="273" class="code c" fill="#1565C0" font-weight="700">request(2)   ← demand = backpressure</text>
+  <line x1="553" y1="315" x2="169" y2="315" stroke="#2E7D32" stroke-width="1.6" marker-end="url(#aGreen)"/>
+  <text x="360" y="308" class="code c" fill="#2E7D32">onNext(a)</text>
+  <line x1="553" y1="345" x2="169" y2="345" stroke="#2E7D32" stroke-width="1.6" marker-end="url(#aGreen)"/>
+  <text x="360" y="338" class="code c" fill="#2E7D32">onNext(b)</text>
+  <line x1="167" y1="380" x2="551" y2="380" stroke="#1565C0" stroke-width="2" marker-end="url(#aBlue)"/>
+  <text x="360" y="373" class="code c" fill="#1565C0" font-weight="700">request(1)</text>
+  <line x1="553" y1="415" x2="169" y2="415" stroke="#2E7D32" stroke-width="1.6" marker-end="url(#aGreen)"/>
+  <text x="360" y="408" class="code c" fill="#2E7D32">onNext(c)</text>
+  <line x1="553" y1="450" x2="169" y2="450" stroke="#1a1a1a" stroke-width="2" marker-end="url(#aGray)"/>
+  <text x="360" y="443" class="code c" font-weight="700">onComplete()  |  onError(e)</text>
+  <line x1="167" y1="485" x2="551" y2="485" stroke="#90A4AE" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#aGray)"/>
+  <text x="360" y="478" class="code c" fill="#607D8B">cancel()  e.g. take(n), client disconnect</text>
+
+  <text x="60" y="518" class="xs">Rules: ≤ n onNext per request(n) · exactly ONE terminal signal · subscribe()/block() = unbounded demand</text>
+
+  <!-- =========================================================== B: assembly / subscription / execution -->
+  <rect x="720" y="96" width="640" height="434" rx="14" class="panel"/>
+  <text x="740" y="124" class="pt">B · Assembly → Subscription → Execution  (Ex01, Ex08)</text>
+
+  <rect x="930" y="150" width="220" height="40" rx="8" class="neu"/><text x="1040" y="175" class="code c">Flux.range(1, 5)</text>
+  <line x1="1040" y1="190" x2="1040" y2="220" stroke="#B0BEC5" stroke-width="2"/>
+  <rect x="930" y="220" width="220" height="40" rx="8" class="neu"/><text x="1040" y="245" class="code c">.map(i -&gt; i * 10)</text>
+  <line x1="1040" y1="260" x2="1040" y2="290" stroke="#B0BEC5" stroke-width="2"/>
+  <rect x="930" y="290" width="220" height="40" rx="8" class="neu"/><text x="1040" y="315" class="code c">.filter(i -&gt; i &gt; 20)</text>
+  <line x1="1040" y1="330" x2="1040" y2="360" stroke="#B0BEC5" stroke-width="2"/>
+  <rect x="930" y="360" width="220" height="40" rx="8" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.4"/><text x="1040" y="385" class="code c">.subscribe(subscriber)</text>
+
+  <line x1="912" y1="385" x2="912" y2="162" stroke="#1565C0" stroke-width="2.2" marker-end="url(#aBlue)"/>
+  <text x="900" y="252" class="s e" fill="#1565C0" font-weight="600">subscribe()</text>
+  <text x="900" y="270" class="s e" fill="#1565C0" font-weight="600">request(n)</text>
+  <text x="900" y="288" class="s e" fill="#1565C0" font-weight="600">Context</text>
+  <text x="900" y="306" class="xs e">travel UP ↑</text>
+
+  <line x1="1168" y1="162" x2="1168" y2="385" stroke="#2E7D32" stroke-width="2.2" marker-end="url(#aGreen)"/>
+  <text x="1180" y="252" class="s" fill="#2E7D32" font-weight="600">onNext(data)</text>
+  <text x="1180" y="270" class="s" fill="#2E7D32" font-weight="600">onComplete</text>
+  <text x="1180" y="288" class="s" fill="#2E7D32" font-weight="600">onError</text>
+  <text x="1180" y="306" class="xs">flow DOWN ↓</text>
+
+  <text x="740" y="432" class="s"><tspan font-weight="700">① Assembly</tspan> — declaring the chain runs nothing (Mono.just is the eager exception)</text>
+  <text x="740" y="456" class="s"><tspan font-weight="700">② Subscription</tspan> — subscribe() travels UP to the source; Context rides along</text>
+  <text x="740" y="480" class="s"><tspan font-weight="700">③ Execution</tspan> — demand goes UP, data flows DOWN</text>
+  <text x="740" y="504" class="s"><tspan font-weight="700">④ Cold source</tspan> — every new subscriber repeats ② and ③ (Ex07)</text>
+
+  <!-- =========================================================== C: schedulers -->
+  <rect x="40" y="556" width="640" height="430" rx="14" class="panel"/>
+  <text x="60" y="584" class="pt">C · subscribeOn vs publishOn  (Ex05)</text>
+
+  <!-- row 1 -->
+  <text x="64" y="620" class="s"><tspan font-weight="700">subscribeOn</tspan> — moves the whole chain, starting at the SOURCE (position doesn't matter)</text>
+  <rect x="64"  y="632" width="130" height="40" rx="8" class="be"/><text x="129" y="657" class="code c">Flux.range</text>
+  <rect x="214" y="632" width="130" height="40" rx="8" class="be"/><text x="279" y="657" class="code c">.map</text>
+  <rect x="364" y="632" width="130" height="40" rx="8" class="be"/><text x="429" y="657" class="code c">.filter</text>
+  <rect x="514" y="632" width="130" height="40" rx="8" class="opBe"/><text x="579" y="657" class="code c">.subscribeOn(bE)</text>
+  <line x1="196" y1="652" x2="212" y2="652" stroke="#455A64" stroke-width="1.4" marker-end="url(#aGray)"/>
+  <line x1="346" y1="652" x2="362" y2="652" stroke="#455A64" stroke-width="1.4" marker-end="url(#aGray)"/>
+  <line x1="496" y1="652" x2="512" y2="652" stroke="#455A64" stroke-width="1.4" marker-end="url(#aGray)"/>
+
+  <!-- row 2 -->
+  <text x="64" y="710" class="s"><tspan font-weight="700">publishOn</tspan> — switches only the operators BELOW it (position matters)</text>
+  <rect x="64"  y="722" width="130" height="40" rx="8" class="main"/><text x="129" y="747" class="code c">Flux.range</text>
+  <rect x="214" y="722" width="130" height="40" rx="8" class="main"/><text x="279" y="747" class="code c">.map</text>
+  <rect x="364" y="722" width="130" height="40" rx="8" class="opPar"/><text x="429" y="747" class="code c">.publishOn(par)</text>
+  <rect x="514" y="722" width="130" height="40" rx="8" class="par"/><text x="579" y="747" class="code c">.filter</text>
+  <line x1="196" y1="742" x2="212" y2="742" stroke="#455A64" stroke-width="1.4" marker-end="url(#aGray)"/>
+  <line x1="346" y1="742" x2="362" y2="742" stroke="#455A64" stroke-width="1.4" marker-end="url(#aGray)"/>
+  <line x1="496" y1="742" x2="512" y2="742" stroke="#455A64" stroke-width="1.4" marker-end="url(#aGray)"/>
+
+  <!-- row 3 -->
+  <text x="64" y="800" class="s"><tspan font-weight="700">Typical</tspan> — blocking source on boundedElastic, CPU work on parallel</text>
+  <rect x="64"  y="812" width="130" height="40" rx="8" class="be"/><text x="129" y="837" class="code c" font-size="11">fromCallable(jdbc)</text>
+  <rect x="214" y="812" width="130" height="40" rx="8" class="opBe"/><text x="279" y="837" class="code c">.subscribeOn(bE)</text>
+  <rect x="364" y="812" width="130" height="40" rx="8" class="opPar"/><text x="429" y="837" class="code c">.publishOn(par)</text>
+  <rect x="514" y="812" width="130" height="40" rx="8" class="par"/><text x="579" y="837" class="code c">.map(cpuWork)</text>
+  <line x1="196" y1="832" x2="212" y2="832" stroke="#455A64" stroke-width="1.4" marker-end="url(#aGray)"/>
+  <line x1="346" y1="832" x2="362" y2="832" stroke="#455A64" stroke-width="1.4" marker-end="url(#aGray)"/>
+  <line x1="496" y1="832" x2="512" y2="832" stroke="#455A64" stroke-width="1.4" marker-end="url(#aGray)"/>
+
+  <!-- thread legend -->
+  <rect x="64"  y="880" width="26" height="16" rx="3" class="main"/><text x="98"  y="893" class="s">caller thread (main)</text>
+  <rect x="270" y="880" width="26" height="16" rx="3" class="be"/>  <text x="304" y="893" class="s">boundedElastic-N</text>
+  <rect x="450" y="880" width="26" height="16" rx="3" class="par"/> <text x="484" y="893" class="s">parallel-N</text>
+  <rect x="64"  y="906" width="26" height="16" rx="3" fill="#fff" stroke="#757575" stroke-dasharray="4 3"/><text x="98" y="919" class="s">scheduler operator (switches threads, emits nothing itself)</text>
+
+  <text x="64" y="952" class="s">Netty event-loop threads (<tspan class="code">reactor-http-nio-N</tspan>) behave like parallel-N:</text>
+  <text x="64" y="972" class="s"><tspan font-weight="700">never block them</tspan> — Reactor even rejects block() there (Ex10).</text>
+
+  <!-- =========================================================== D: flatMap family -->
+  <rect x="720" y="556" width="640" height="430" rx="14" class="panel"/>
+  <text x="740" y="584" class="pt">D · flatMap vs concatMap vs flatMapSequential  (Ex02)</text>
+  <text x="740" y="606" class="s">Same 3 remote calls: #1 = 300 ms, #2 = 200 ms, #3 = 100 ms</text>
+
+  <!-- grid -->
+  <line x1="850"  y1="622" x2="850"  y2="935" class="grid"/>
+  <line x1="925"  y1="622" x2="925"  y2="935" class="grid"/>
+  <line x1="1000" y1="622" x2="1000" y2="935" class="grid"/>
+  <line x1="1075" y1="622" x2="1075" y2="935" class="grid"/>
+  <line x1="1150" y1="622" x2="1150" y2="935" class="grid"/>
+  <line x1="1225" y1="622" x2="1225" y2="935" class="grid"/>
+  <line x1="1300" y1="622" x2="1300" y2="935" class="grid"/>
+
+  <!-- flatMap row (y0 = 630) -->
+  <text x="740" y="644" class="t">flatMap</text>
+  <text x="740" y="662" class="xs">out: 3, 2, 1</text>
+  <text x="740" y="678" class="xs">done: 300 ms</text>
+  <rect x="850" y="630" width="225" height="13" rx="3" class="lane"/><text x="856" y="640" class="xs">#1</text>
+  <rect x="850" y="647" width="150" height="13" rx="3" class="lane"/><text x="856" y="657" class="xs">#2</text>
+  <rect x="850" y="664" width="75"  height="13" rx="3" class="lane"/><text x="856" y="674" class="xs">#3</text>
+  <line x1="850" y1="696" x2="1300" y2="696" stroke="#B0BEC5" stroke-width="1.2"/>
+  <text x="844" y="700" class="xs e">out</text>
+  <circle cx="925"  cy="696" r="9" fill="#2E7D32"/><text x="925"  y="700" class="c" font-size="11" font-weight="700" fill="#fff">3</text>
+  <circle cx="1000" cy="696" r="9" fill="#2E7D32"/><text x="1000" y="700" class="c" font-size="11" font-weight="700" fill="#fff">2</text>
+  <circle cx="1075" cy="696" r="9" fill="#2E7D32"/><text x="1075" y="700" class="c" font-size="11" font-weight="700" fill="#fff">1</text>
+
+  <!-- concatMap row (y0 = 730) -->
+  <text x="740" y="744" class="t">concatMap</text>
+  <text x="740" y="762" class="xs">out: 1, 2, 3</text>
+  <text x="740" y="778" class="xs">done: 600 ms</text>
+  <rect x="850"  y="730" width="225" height="13" rx="3" class="lane"/><text x="856"  y="740" class="xs">#1</text>
+  <rect x="1075" y="747" width="150" height="13" rx="3" class="lane"/><text x="1081" y="757" class="xs">#2</text>
+  <rect x="1225" y="764" width="75"  height="13" rx="3" class="lane"/><text x="1231" y="774" class="xs">#3</text>
+  <line x1="850" y1="796" x2="1300" y2="796" stroke="#B0BEC5" stroke-width="1.2"/>
+  <text x="844" y="800" class="xs e">out</text>
+  <circle cx="1075" cy="796" r="9" fill="#2E7D32"/><text x="1075" y="800" class="c" font-size="11" font-weight="700" fill="#fff">1</text>
+  <circle cx="1225" cy="796" r="9" fill="#2E7D32"/><text x="1225" y="800" class="c" font-size="11" font-weight="700" fill="#fff">2</text>
+  <circle cx="1300" cy="796" r="9" fill="#2E7D32"/><text x="1300" y="800" class="c" font-size="11" font-weight="700" fill="#fff">3</text>
+
+  <!-- flatMapSequential row (y0 = 830) -->
+  <text x="740" y="844" class="t">flatMap</text>
+  <text x="740" y="860" class="t">Sequential</text>
+  <text x="740" y="878" class="xs">out: 1, 2, 3 · 300 ms</text>
+  <rect x="850" y="830" width="225" height="13" rx="3" class="lane"/><text x="856" y="840" class="xs">#1</text>
+  <rect x="850" y="847" width="150" height="13" rx="3" class="lane"/><text x="856" y="857" class="xs">#2</text>
+  <rect x="850" y="864" width="75"  height="13" rx="3" class="lane"/><text x="856" y="874" class="xs">#3</text>
+  <line x1="850" y1="896" x2="1300" y2="896" stroke="#B0BEC5" stroke-width="1.2"/>
+  <text x="844" y="900" class="xs e">out</text>
+  <circle cx="1075" cy="896" r="9" fill="#2E7D32"/><text x="1075" y="900" class="c" font-size="11" font-weight="700" fill="#fff">1</text>
+  <circle cx="1097" cy="896" r="9" fill="#2E7D32"/><text x="1097" y="900" class="c" font-size="11" font-weight="700" fill="#fff">2</text>
+  <circle cx="1119" cy="896" r="9" fill="#2E7D32"/><text x="1119" y="900" class="c" font-size="11" font-weight="700" fill="#fff">3</text>
+  <text x="1097" y="920" class="xs c">#2, #3 finished early but are held back until #1 arrives</text>
+
+  <!-- axis -->
+  <line x1="850" y1="935" x2="1300" y2="935" stroke="#455A64" stroke-width="1.2"/>
+  <text x="850"  y="952" class="xs c">0</text>
+  <text x="925"  y="952" class="xs c">100</text>
+  <text x="1000" y="952" class="xs c">200</text>
+  <text x="1075" y="952" class="xs c">300</text>
+  <text x="1150" y="952" class="xs c">400</text>
+  <text x="1225" y="952" class="xs c">500</text>
+  <text x="1300" y="952" class="xs c">600 ms</text>
+
+  <text x="740" y="975" class="s">flatMap(fn, 1) ≈ concatMap · default flatMap concurrency = 256 · proven with virtual time</text>
+</svg>

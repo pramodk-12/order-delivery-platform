@@ -11,7 +11,12 @@ using reactive (MongoDB, R2DBC) and blocking (JPA, IBM DB2) data stores side by 
 
 ![Target architecture](docs/architecture/target-architecture.svg)
 
-Diagrams live in [docs/architecture/](docs/architecture/): the target architecture, plus one "as built" diagram added at the end of each phase.
+Diagrams live in [docs/architecture/](docs/architecture/): the target architecture, plus one diagram added at the end of each phase.
+
+| Phase | Diagram |
+|---|---|
+| Target | [target-architecture.svg](docs/architecture/target-architecture.svg) |
+| 1 | [phase-1-reactor-model.svg](docs/architecture/phase-1-reactor-model.svg): Reactive Streams protocol, assembly/subscription, schedulers, the flatMap family |
 
 <details><summary>Text version</summary>
 
@@ -108,7 +113,7 @@ curl http://localhost:8081/actuator/health
 ## Phase roadmap
 
 - [x] **Phase 0** – Foundation: multi-module build, `common` contracts, Docker infrastructure
-- [ ] **Phase 1** – Reactor fundamentals (`reactor-playground`)
+- [x] **Phase 1** – Reactor fundamentals: 73 tests in [`reactor-playground`](reactor-playground/README.md) · [diagram](docs/architecture/phase-1-reactor-model.svg)
 - [ ] **Phase 2** – Product Service: WebFlux + Reactive MongoDB
 - [ ] **Phase 3** – Inventory Service: R2DBC + reactive transactions
 - [ ] **Phase 4** – Order Service: WebClient, `Mono.zip`, Resilience4j, 202 async API
