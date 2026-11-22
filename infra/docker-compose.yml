@@ -111,6 +111,25 @@ services:
       retries: 12
       start_period: 30s
 
+  # ---------------------------------------------------------------- PostgreSQL (CQRS read model, Phase 6)
+  # order-query-service projects Kafka events into a denormalised, query-optimised order history.
+  postgres:
+    image: postgres:17-alpine
+    container_name: postgres
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: order_query_db
+      POSTGRES_USER: ${POSTGRES_APP_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_APP_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d order_query_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
   # ---------------------------------------------------------------- Redis (rate limiting, cache, pub/sub)
   redis:
     image: redis:8.2-alpine
@@ -167,4 +186,5 @@ services:
 volumes:
   mongo-data:
   mysql-data:
+  postgres-data:
   db2-data:

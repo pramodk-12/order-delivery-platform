@@ -27,9 +27,9 @@ Diagrams live in [docs/architecture/](docs/architecture/): the target architectu
                                       │
                                ┌──────┴──────┐
                                ▼   Kafka     ▼
-                     Notification :8086   Tracking :8087
-                     reactive consumer,   SSE, hot streams,
-                     WebSocket push       reactive Redis
+                     Notification :8086   Tracking :8087      Order Query :8088
+                     reactive consumer,   SSE, hot streams,   CQRS read model,
+                     WebSocket push       reactive Redis      R2DBC PostgreSQL
 ```
 
 </details>
@@ -46,6 +46,7 @@ Diagrams live in [docs/architecture/](docs/architecture/): the target architectu
 | `payment-service` | 8084 | **Spring MVC** (blocking on purpose), JPA, MySQL | 5 |
 | `notification-service` | 8086 | WebFlux, reactive Kafka consumer, WebSocket | 6 |
 | `tracking-service` | 8087 | WebFlux, SSE, reactive Redis | 6 |
+| `order-query-service` | 8088 | **CQRS read model**: Kafka event projection into R2DBC PostgreSQL | 6 |
 | `customer-service` | 8085 | WebFlux over blocking DB2 JDBC | 7 |
 | `api-gateway` | 8080 | Spring Cloud Gateway (WebFlux) | 8 |
 
@@ -57,6 +58,7 @@ Diagrams live in [docs/architecture/](docs/architecture/): the target architectu
 | Kafka UI | 8090 | http://localhost:8090 |
 | MongoDB 8.0 | 27017 | Single-node replica set `rs0` (required for change streams) |
 | MySQL 8.4 | **3307** | Schemas `inventory_db`, `order_db`, `payment_db`; user `app`/`app` |
+| PostgreSQL 17 | 5432 | `order_query_db` (CQRS read model); user `app`/`app` |
 | Redis 8.2 | 6379 | |
 | Zipkin 3.6 | 9411 | http://localhost:9411 |
 | IBM Db2 12.1 | 50000 | Opt-in profile `legacy`; database `CUSTDB`, user `db2inst1` |
@@ -111,7 +113,7 @@ curl http://localhost:8081/actuator/health
 - [ ] **Phase 3** – Inventory Service: R2DBC + reactive transactions
 - [ ] **Phase 4** – Order Service: WebClient, `Mono.zip`, Resilience4j, 202 async API
 - [ ] **Phase 5** – Kafka, Payment Service (MVC), saga + compensation
-- [ ] **Phase 6** – Notification + Tracking: backpressure, SSE, WebSocket, Sinks
+- [ ] **Phase 6** – Notification + Tracking: backpressure, SSE, WebSocket, Sinks · Order Query: CQRS read model on PostgreSQL
 - [ ] **Phase 7** – Customer Service: DB2 blocking bridge, BlockHound
 - [ ] **Phase 8** – API Gateway + Security
 - [ ] **Phase 9** – Observability, Testcontainers, performance (WebFlux vs MVC vs Virtual Threads)
@@ -121,9 +123,9 @@ curl http://localhost:8081/actuator/health
 
 | Topic | Producer → Consumer | Event |
 |---|---|---|
-| `orders.created` | order → payment | `OrderCreatedEvent` |
-| `payments.completed` | payment → order | `PaymentCompletedEvent` |
-| `payments.failed` | payment → order | `PaymentFailedEvent` (triggers compensation) |
-| `orders.status-changed` | order → notification, tracking | `OrderStatusChangedEvent` |
+| `orders.created` | order → payment, order-query | `OrderCreatedEvent` |
+| `payments.completed` | payment → order, order-query | `PaymentCompletedEvent` |
+| `payments.failed` | payment → order, order-query | `PaymentFailedEvent` (triggers compensation) |
+| `orders.status-changed` | order → notification, tracking, order-query | `OrderStatusChangedEvent` |
 
 Each topic has a matching `<topic>.DLT` dead-letter topic. The message key is always `orderId`, which keeps events for one order in order within its partition.

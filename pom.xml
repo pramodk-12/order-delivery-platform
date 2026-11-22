@@ -30,6 +30,7 @@
         <module>customer-service</module>
         <module>notification-service</module>
         <module>tracking-service</module>
+        <module>order-query-service</module>
     </modules>
 
     <properties>
