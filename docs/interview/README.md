@@ -62,7 +62,7 @@ Use the [target architecture](../architecture/target-architecture.svg) and walk 
 
 1. The client calls the **API Gateway**, which checks the JWT and rate limit, then routes the request. *(Phase 8)*
 2. The customer browses the **Product Service**: reactive MongoDB, NDJSON streaming, and live prices over SSE. ✅ *built*
-3. The customer places an order. The **Order Service** checks product, stock and customer **in parallel** with `WebClient` + `Mono.zip`, reserves stock, and returns **202 Accepted** at once. *(Phase 4)*
+3. The customer places an order. The **Order Service** checks product, stock and customer **in parallel** with `WebClient` + `Mono.zip`, then asks the **Inventory Service** to reserve the stock. That's one all-or-nothing reactive transaction, safe under concurrency and idempotent by order ID (inventory ✅ *built*). It returns **202 Accepted** at once. *(Phase 4)*
 4. It publishes `OrderCreated` to **Kafka**. The **Payment Service** charges the customer and publishes the result. On failure, the order service **compensates** by releasing the stock (a saga). *(Phase 5)*
 5. Status events fan out to the **Notification** service (WebSocket), **Tracking** (SSE) and **Order Query** (a CQRS read model in PostgreSQL). *(Phase 6)*
 
@@ -77,6 +77,10 @@ Use the [target architecture](../architecture/target-architecture.svg) and walk 
 | NDJSON streaming *(Phase 2)* | Fast first byte, flat memory, end-to-end backpressure | Clients must parse line by line; it isn't a single JSON document |
 | SSE from a change stream *(Phase 2)* | Push without polling; plain HTTP; automatic reconnect | One direction only; needs a replica set; heartbeats needed behind proxies |
 | Atomic `findAndModify` *(Phase 2)* | No lost updates, one round trip | Business rules that need the old value must be written as conditional updates |
+| R2DBC for relational data *(Phase 3)* | Non-blocking SQL, so threads never wait on MySQL | No JPA: no lazy loading, relationships or dirty checking; more hand-written SQL |
+| Atomic conditional UPDATE against overselling *(Phase 3)* | Correct under any contention, no retries. Measured: 100 buyers / 50 units → exactly 50 sold, 0 retries | The rule has to fit in a WHERE clause; complex checks need pessimistic locking |
+| Optimistic locking kept as a comparison *(Phase 3)* | No locks held; ideal when conflicts are rare | Under contention: 560–610 retries and 2–4× slower (measured over 5 runs) |
+| Idempotency key (orderId + unique constraint) *(Phase 3)* | Safe client retries and Kafka redeliveries | Clients must send a stable ID; it's stored per order |
 | Kafka for events *(Phase 5)* | Decoupling, retries, replay | Eventual consistency, duplicates, ordering only within a partition |
 | CQRS read model in PostgreSQL *(Phase 6)* | Fast denormalised reads for order history | Reads lag writes slightly (eventual consistency) |
 
@@ -97,5 +101,15 @@ You can leave these for now. Each one becomes much easier once you've seen it in
 | Ex09 Testing | Every phase ✅ | `StepVerifier` on SSE in the Phase 2 integration test |
 | Ex10 Blocking | Phase 7 | DB2 over JDBC on `boundedElastic`; BlockHound |
 
+## Concepts you've now used in real code
+
+| Concept | Where |
+|---|---|
+| `concatMap` vs `flatMap` (Ex02) | Phase 3: `concatMap` inside a transaction (one connection); `flatMap` to fire 100 concurrent buyers in the test |
+| `retryWhen(Retry.backoff…)` with `filter` (Ex04) | Phase 3: retry only transient failures, each retry a fresh transaction |
+| Reactor Context (Ex08) | Phase 3: reactive transactions are stored in the Context, not a ThreadLocal |
+| Hot publisher with `share()` (Ex07) | Phase 2: one MongoDB change stream shared by every SSE client |
+
 ## Per-phase talking points
 - [Phase 2: Product Service](../../product-service/README.md#how-to-explain-it-in-an-interview)
+- [Phase 3: Inventory Service](../../inventory-service/README.md#how-to-explain-it-in-an-interview)

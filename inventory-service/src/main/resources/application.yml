@@ -2,14 +2,41 @@ spring:
   application:
     name: inventory-service
 
+  # Runtime data access: R2DBC (non-blocking) through a connection pool.
+  # Docker MySQL is on host port 3307 (3306 is taken by a locally installed MySQL).
+  r2dbc:
+    url: r2dbc:mysql://localhost:3307/inventory_db
+    username: app
+    password: app
+    pool:
+      initial-size: 5
+      max-size: 20
+
+  # Schema migrations only: Flyway uses JDBC, once, at startup.
+  flyway:
+    url: jdbc:mysql://localhost:3307/inventory_db
+    user: app
+    password: app
+
 server:
   port: 8082
+
+inventory:
+  reservation:
+    # ATOMIC     = one conditional UPDATE per line (default, best for hot items)
+    # OPTIMISTIC = read, check, save with @Version + retry (fine for low contention)
+    strategy: ATOMIC
+    max-retries: 10
+  seed:
+    enabled: true
+    count: 1000
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        # metrics: see /actuator/metrics/inventory.reservation.retries
+        include: health,info,metrics
   endpoint:
     health:
       show-details: always

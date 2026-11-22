@@ -18,6 +18,7 @@ Diagrams live in [docs/architecture/](docs/architecture/): the target architectu
 | Target | [target-architecture.svg](docs/architecture/target-architecture.svg) |
 | 1 | [phase-1-reactor-model.svg](docs/architecture/phase-1-reactor-model.svg): Reactive Streams protocol, assembly/subscription, schedulers, the flatMap family |
 | 2 | [phase-2-product-service.svg](docs/architecture/phase-2-product-service.svg): request/response, NDJSON streaming, SSE push from a change stream |
+| 3 | [phase-3-inventory-service.svg](docs/architecture/phase-3-inventory-service.svg): reactive transactions, the two anti-overselling strategies, measured results |
 
 **Interview prep:** [docs/interview/README.md](docs/interview/README.md) covers how to explain reactive concepts and the system design. It grows each phase.
 
@@ -118,7 +119,7 @@ curl http://localhost:8081/actuator/health
 - [x] **Phase 0** – Foundation: multi-module build, `common` contracts, Docker infrastructure
 - [x] **Phase 1** – Reactor fundamentals: 73 tests in [`reactor-playground`](reactor-playground/README.md) · [diagram](docs/architecture/phase-1-reactor-model.svg)
 - [x] **Phase 2** – Product Service: WebFlux + reactive MongoDB, NDJSON streaming, SSE from a change stream · [guide](product-service/README.md) · [diagram](docs/architecture/phase-2-product-service.svg)
-- [ ] **Phase 3** – Inventory Service: R2DBC + reactive transactions
+- [x] **Phase 3** – Inventory Service: R2DBC + reactive transactions, overselling prevention measured under concurrency · [guide](inventory-service/README.md) · [diagram](docs/architecture/phase-3-inventory-service.svg)
 - [ ] **Phase 4** – Order Service: WebClient, `Mono.zip`, Resilience4j, 202 async API
 - [ ] **Phase 5** – Kafka, Payment Service (MVC), saga + compensation
 - [ ] **Phase 6** – Notification + Tracking: backpressure, SSE, WebSocket, Sinks · Order Query: CQRS read model on PostgreSQL

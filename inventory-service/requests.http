@@ -1,0 +1,71 @@
+### Inventory Service - try it with the REST Client extension (click "Send Request" above each block)
+### Start infra first:  cd infra; docker compose up -d --wait
+### Start the service:  .\mvnw.cmd -pl inventory-service -am spring-boot:run
+### The seeder gives SKU-00001 ... SKU-01000 a stock level of 0..50 (same SKUs as product-service).
+
+@base = http://localhost:8082/api/inventory
+
+### 1. Stock for several SKUs in one call (order-service will use this to check a cart)
+GET {{base}}?skus=SKU-00001,SKU-00002,SKU-00003
+
+### 2. Restock (upsert): set the available quantity
+PUT {{base}}/SKU-00001
+Content-Type: application/json
+
+{ "available": 20 }
+
+### 3. Reserve stock for an order - all or nothing. 201 Created the first time...
+POST {{base}}/reservations
+Content-Type: application/json
+
+{
+  "orderId": "DEMO-ORDER-1",
+  "items": [
+    { "sku": "SKU-00001", "quantity": 2 },
+    { "sku": "SKU-00002", "quantity": 1 }
+  ]
+}
+
+### 4. ...send request 3 again: 200 OK, same reservation, stock NOT reserved twice (idempotency)
+
+### 5. Stock moved from "available" to "reserved"
+GET {{base}}?skus=SKU-00001,SKU-00002
+
+### 6. Look up the reservation
+GET {{base}}/reservations/DEMO-ORDER-1
+
+### 7. Payment failed -> release (saga compensation). Send it twice: the second call changes nothing.
+POST {{base}}/reservations/DEMO-ORDER-1/release
+
+### 8. Confirm after release -> 409 (invalid state)
+POST {{base}}/reservations/DEMO-ORDER-1/confirm
+
+### 9. All or nothing: SKU-00001 has enough, but 999 of SKU-00002 doesn't -> 409, NOTHING is reserved
+POST {{base}}/reservations
+Content-Type: application/json
+
+{
+  "orderId": "DEMO-ORDER-2",
+  "items": [
+    { "sku": "SKU-00001", "quantity": 1 },
+    { "sku": "SKU-00002", "quantity": 999 }
+  ]
+}
+
+### 10. Confirm path: reserve, then confirm (payment succeeded) -> reserved stock becomes sold
+POST {{base}}/reservations
+Content-Type: application/json
+
+{ "orderId": "DEMO-ORDER-3", "items": [ { "sku": "SKU-00003", "quantity": 1 } ] }
+
+###
+POST {{base}}/reservations/DEMO-ORDER-3/confirm
+
+### 11. Validation error -> 400 with one violation per field
+POST {{base}}/reservations
+Content-Type: application/json
+
+{ "orderId": "", "items": [ { "sku": "SKU-00001", "quantity": 0 } ] }
+
+### 12. Retry metric (non-zero only after concurrent conflicts)
+GET http://localhost:8082/actuator/metrics/inventory.reservation.retries
