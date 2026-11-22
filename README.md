@@ -9,6 +9,12 @@ using reactive (MongoDB, R2DBC) and blocking (JPA, IBM DB2) data stores side by 
 
 ## Architecture
 
+![Target architecture](docs/architecture/target-architecture.svg)
+
+Diagrams live in [docs/architecture/](docs/architecture/): the target architecture, plus one "as built" diagram added at the end of each phase.
+
+<details><summary>Text version</summary>
+
 ```
                     ┌─────────────────────────┐
   Client ──────────▶│  API Gateway  :8080     │  Spring Cloud Gateway (reactive), JWT, Redis rate limiting
@@ -25,6 +31,8 @@ using reactive (MongoDB, R2DBC) and blocking (JPA, IBM DB2) data stores side by 
                      reactive consumer,   SSE, hot streams,
                      WebSocket push       reactive Redis
 ```
+
+</details>
 
 ## Modules
 
