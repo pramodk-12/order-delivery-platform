@@ -2,8 +2,29 @@ spring:
   application:
     name: product-service
 
+  # Boot 4 moved the MongoDB connection settings from spring.data.mongodb.* to spring.mongodb.*
+  mongodb:
+    # Docker MongoDB is on host port 27018 (27017 is taken by a locally installed MongoDB).
+    # directConnection: talk to the single replica-set member directly (local dev)
+    uri: mongodb://localhost:27018/catalog_db?directConnection=true
+
+  data:
+    mongodb:
+      # create @Indexed indexes on startup (fine for dev; production usually manages indexes explicitly)
+      auto-index-creation: true
+      representation:
+        # store/query every BigDecimal as a real decimal, not a String (see Product.price)
+        big-decimal: decimal128
+
 server:
   port: 8081
+
+catalog:
+  seed:
+    enabled: true
+    count: 1000
+  sse:
+    heartbeat: 15s
 
 management:
   endpoints:

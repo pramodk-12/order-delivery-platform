@@ -17,6 +17,9 @@ Diagrams live in [docs/architecture/](docs/architecture/): the target architectu
 |---|---|
 | Target | [target-architecture.svg](docs/architecture/target-architecture.svg) |
 | 1 | [phase-1-reactor-model.svg](docs/architecture/phase-1-reactor-model.svg): Reactive Streams protocol, assembly/subscription, schedulers, the flatMap family |
+| 2 | [phase-2-product-service.svg](docs/architecture/phase-2-product-service.svg): request/response, NDJSON streaming, SSE push from a change stream |
+
+**Interview prep:** [docs/interview/README.md](docs/interview/README.md) covers how to explain reactive concepts and the system design. It grows each phase.
 
 <details><summary>Text version</summary>
 
@@ -61,7 +64,7 @@ Diagrams live in [docs/architecture/](docs/architecture/): the target architectu
 |---|---|---|
 | Kafka 4.2 (KRaft) | 9092 | Topics pre-created by `kafka-init` (3 partitions each, plus `.DLT` topics) |
 | Kafka UI | 8090 | http://localhost:8090 |
-| MongoDB 8.0 | 27017 | Single-node replica set `rs0` (required for change streams) |
+| MongoDB 8.0 | **27018** | Single-node replica set `rs0` (required for change streams). Port 27018 because a local MongoDB install uses 27017 |
 | MySQL 8.4 | **3307** | Schemas `inventory_db`, `order_db`, `payment_db`; user `app`/`app` |
 | PostgreSQL 17 | 5432 | `order_query_db` (CQRS read model); user `app`/`app` |
 | Redis 8.2 | 6379 | |
@@ -114,7 +117,7 @@ curl http://localhost:8081/actuator/health
 
 - [x] **Phase 0** – Foundation: multi-module build, `common` contracts, Docker infrastructure
 - [x] **Phase 1** – Reactor fundamentals: 73 tests in [`reactor-playground`](reactor-playground/README.md) · [diagram](docs/architecture/phase-1-reactor-model.svg)
-- [ ] **Phase 2** – Product Service: WebFlux + Reactive MongoDB
+- [x] **Phase 2** – Product Service: WebFlux + reactive MongoDB, NDJSON streaming, SSE from a change stream · [guide](product-service/README.md) · [diagram](docs/architecture/phase-2-product-service.svg)
 - [ ] **Phase 3** – Inventory Service: R2DBC + reactive transactions
 - [ ] **Phase 4** – Order Service: WebClient, `Mono.zip`, Resilience4j, 202 async API
 - [ ] **Phase 5** – Kafka, Payment Service (MVC), saga + compensation

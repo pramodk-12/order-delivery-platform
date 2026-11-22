@@ -1,0 +1,78 @@
+### Product Service - try it with the REST Client extension (click "Send Request" above each block)
+### Start infra first:  cd infra; docker compose up -d --wait
+### Start the service:  .\mvnw.cmd -pl product-service -am spring-boot:run
+
+@base = http://localhost:8081
+
+### 1. Search: category + price range + pagination (Mono.zip runs content + count in parallel)
+GET {{base}}/api/products?category=books&minPrice=100&maxPrice=200&page=0&size=5
+
+### 2. Search by name (case-insensitive "contains")
+GET {{base}}/api/products?q=item 0001
+
+### 3. Create - returns 201 + Location header
+# @name created
+POST {{base}}/api/products
+Content-Type: application/json
+
+{
+  "sku": "DEMO-100",
+  "name": "Reactive Spring in Action",
+  "description": "Interview prep",
+  "category": "books",
+  "price": 39.90
+}
+
+### 4. Get by id (uses the id from request 3)
+GET {{base}}/api/products/{{created.response.body.id}}
+
+### 5. Update details (price is NOT part of PUT)
+PUT {{base}}/api/products/{{created.response.body.id}}
+Content-Type: application/json
+
+{
+  "sku": "DEMO-100",
+  "name": "Reactive Spring in Action, 2nd ed.",
+  "category": "books"
+}
+
+### 6. Change price -> also pushed to every SSE client on /api/catalog/price-updates
+PATCH {{base}}/api/products/{{created.response.body.id}}/price
+Content-Type: application/json
+
+{ "price": 29.99 }
+
+### 7. Duplicate SKU -> 409 (enforced by the unique index)
+POST {{base}}/api/products
+Content-Type: application/json
+
+{ "sku": "DEMO-100", "name": "Copy", "category": "books", "price": 10 }
+
+### 8. Validation error -> 400 with one violation per field; correlation id echoed back
+POST {{base}}/api/products
+Content-Type: application/json
+X-Correlation-Id: demo-123
+
+{ "sku": "", "name": "x", "category": "books", "price": -1 }
+
+### 9. Unknown id -> 404
+GET {{base}}/api/products/000000000000000000000000
+
+### 10. Delete -> 204
+DELETE {{base}}/api/products/{{created.response.body.id}}
+
+### 11. Stream the whole catalog as NDJSON (functional endpoint)
+GET {{base}}/api/catalog/stream
+Accept: application/x-ndjson
+
+### 12. Same stream, slowed down so you can watch it arrive line by line
+###     (REST Client buffers responses - for a live view use a terminal:
+###      curl.exe -N "http://localhost:8081/api/catalog/stream?delayMs=50")
+GET {{base}}/api/catalog/stream?delayMs=20
+Accept: application/x-ndjson
+
+### 13. Bad parameter on a functional route -> 400 from the router's onError
+GET {{base}}/api/catalog/stream?delayMs=abc
+
+### 14. Live price updates (SSE). Open in a TERMINAL, then run request 6 again:
+###     curl.exe -N http://localhost:8081/api/catalog/price-updates

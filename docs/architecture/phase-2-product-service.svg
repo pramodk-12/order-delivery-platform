@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="950" viewBox="0 0 1400 950" font-family="'Segoe UI', Arial, sans-serif">
+  <title>Phase 2 - Product Service as built</title>
+  <defs>
+    <marker id="aBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1565C0"/></marker>
+    <marker id="aGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2E7D32"/></marker>
+    <marker id="aPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7B1FA2"/></marker>
+    <style>
+      .t    { font-size: 15px; font-weight: 600; fill: #1a1a1a; }
+      .s    { font-size: 12.5px; fill: #37474F; }
+      .xs   { font-size: 11px; fill: #546E7A; }
+      .code { font-family: Consolas, 'Cascadia Mono', monospace; font-size: 12.5px; fill: #1a1a1a; }
+      .c    { text-anchor: middle; }
+      .rx   { fill: #E8F5E9; stroke: #2E7D32; stroke-width: 1.5; }
+      .be   { fill: #F3E5F5; stroke: #7B1FA2; stroke-width: 1.5; }
+      .neu  { fill: #FAFAFA; stroke: #757575; stroke-width: 1.3; }
+      .store{ fill: #ECEFF1; stroke: #546E7A; stroke-width: 1.4; }
+      .blue  { stroke: #1565C0; stroke-width: 2; fill: none; }
+      .green { stroke: #2E7D32; stroke-width: 2.2; fill: none; }
+      .purple{ stroke: #7B1FA2; stroke-width: 2; fill: none; stroke-dasharray: 7 5; }
+      .db    { stroke: #78909C; stroke-width: 1.8; fill: none; stroke-dasharray: 2 4; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="950" fill="#FFFFFF"/>
+
+  <text x="40" y="46" font-size="26" font-weight="700" fill="#1a1a1a">Phase 2 · Product Service (as built)</text>
+  <text x="40" y="72" class="s" font-size="14">WebFlux + reactive MongoDB · three ways to talk to clients: request/response, streaming, push</text>
+
+  <!-- legend -->
+  <rect x="1030" y="86" width="330" height="130" rx="10" class="neu"/>
+  <text x="1050" y="110" class="t" font-size="13">Legend</text>
+  <line x1="1050" y1="130" x2="1090" y2="130" class="blue" marker-end="url(#aBlue)"/>     <text x="1100" y="134" class="s">① request / response</text>
+  <line x1="1050" y1="154" x2="1090" y2="154" class="green" marker-end="url(#aGreen)"/>   <text x="1100" y="158" class="s">② streaming (NDJSON)</text>
+  <line x1="1050" y1="178" x2="1090" y2="178" class="purple" marker-end="url(#aPurple)"/> <text x="1100" y="182" class="s">③ push (Server-Sent Events)</text>
+  <line x1="1050" y1="202" x2="1090" y2="202" class="db"/>                                <text x="1100" y="206" class="s">database access / oplog</text>
+
+  <!-- ===================== clients ===================== -->
+  <rect x="40" y="196" width="210" height="72" rx="10" class="neu"/>
+  <text x="145" y="222" class="t c">REST client</text>
+  <text x="145" y="242" class="s c">POST · GET · PUT</text>
+  <text x="145" y="258" class="s c">PATCH · DELETE</text>
+  <circle cx="40" cy="196" r="12" fill="#1565C0"/><text x="40" y="201" class="c" font-size="13" font-weight="700" fill="#fff">1</text>
+
+  <rect x="40" y="440" width="210" height="72" rx="10" class="neu"/>
+  <text x="145" y="466" class="t c">curl / browser</text>
+  <text x="145" y="486" class="s c">Accept: application/x-ndjson</text>
+  <text x="145" y="502" class="s c">first byte ≈ 0.1 s</text>
+  <circle cx="40" cy="440" r="12" fill="#2E7D32"/><text x="40" y="445" class="c" font-size="13" font-weight="700" fill="#fff">2</text>
+
+  <rect x="50" y="620" width="210" height="72" rx="10" class="neu"/>
+  <rect x="40" y="610" width="210" height="72" rx="10" class="neu"/>
+  <text x="145" y="636" class="t c">Browsers (EventSource)</text>
+  <text x="145" y="656" class="s c">text/event-stream</text>
+  <text x="145" y="672" class="s c">N clients share 1 stream</text>
+  <circle cx="40" cy="610" r="12" fill="#7B1FA2"/><text x="40" y="615" class="c" font-size="13" font-weight="700" fill="#fff">3</text>
+
+  <!-- ===================== service container ===================== -->
+  <rect x="290" y="110" width="720" height="670" rx="16" fill="#FCFEFC" stroke="#81C784" stroke-width="1.5"/>
+  <text x="310" y="134" class="t">product-service  :8081  <tspan class="s" font-weight="400">· Spring WebFlux on Netty</tspan></text>
+  <rect x="310" y="146" width="680" height="34" rx="8" fill="#ECEFF1" stroke="#90A4AE"/>
+  <text x="650" y="168" class="s c">Netty event loop (reactor-http-nio-N): a few threads serve every connection · nothing here blocks</text>
+
+  <!-- annotated controller -->
+  <rect x="320" y="200" width="280" height="76" rx="10" class="rx"/>
+  <text x="460" y="226" class="t c">ProductController</text>
+  <text x="460" y="246" class="s c">/api/products/** · annotated</text>
+  <text x="460" y="264" class="xs c">returns Mono&lt;…&gt; immediately</text>
+  <rect x="320" y="286" width="280" height="40" rx="8" fill="#FFFFFF" stroke="#757575" stroke-dasharray="5 4"/>
+  <text x="460" y="311" class="s c">GlobalErrorHandler · @RestControllerAdvice</text>
+
+  <!-- functional router -->
+  <rect x="320" y="380" width="280" height="370" rx="12" class="neu"/>
+  <text x="460" y="404" class="t c">CatalogRouter → Handler</text>
+  <text x="460" y="422" class="s c">/api/catalog/** · functional</text>
+  <rect x="336" y="440" width="248" height="70" rx="8" class="rx"/>
+  <text x="460" y="464" class="code c">streamProducts()</text>
+  <text x="460" y="484" class="s c">GET /stream → NDJSON</text>
+  <text x="460" y="500" class="xs c">?delayMs → delayElements</text>
+  <rect x="336" y="600" width="248" height="86" rx="8" class="rx"/>
+  <text x="460" y="624" class="code c">priceUpdates()</text>
+  <text x="460" y="644" class="s c">GET /price-updates → SSE</text>
+  <text x="460" y="662" class="xs c">merge(price events, heartbeat)</text>
+  <text x="460" y="678" class="xs c">first heartbeat at t=0 opens the stream</text>
+  <text x="460" y="730" class="xs c">onError(IllegalArgumentException) → 400</text>
+
+  <!-- service -->
+  <rect x="660" y="200" width="320" height="150" rx="10" class="rx"/>
+  <text x="820" y="226" class="t c">ProductService</text>
+  <text x="820" y="250" class="s c">search → Mono.zip(page, count)</text>
+  <text x="820" y="270" class="s c">update / price → atomic findAndModify</text>
+  <text x="820" y="290" class="s c">findById → switchIfEmpty(error) → 404</text>
+  <text x="820" y="310" class="s c">create → unique sku index → 409</text>
+  <text x="820" y="330" class="s c">streamAll → Flux read from a cursor</text>
+
+  <!-- data access -->
+  <rect x="660" y="400" width="320" height="70" rx="10" class="neu"/>
+  <text x="820" y="426" class="t c" font-size="13.5">ProductRepository · ReactiveMongoTemplate</text>
+  <text x="820" y="448" class="s c">reactive driver: callbacks, no waiting threads</text>
+
+  <!-- change stream -->
+  <rect x="660" y="600" width="320" height="112" rx="10" class="be"/>
+  <text x="820" y="626" class="t c">PriceChangeStream</text>
+  <text x="820" y="646" class="s c">changeStream(Product) + filter(price)</text>
+  <text x="820" y="664" class="s c">share(): 1 cursor for N clients (hot)</text>
+  <text x="820" y="682" class="s c">retryWhen(backoff) on failover</text>
+  <text x="820" y="700" class="xs c">opens on 1st client, closes on last</text>
+
+  <!-- ===================== MongoDB ===================== -->
+  <path d="M1060,318 A140,18 0 0 1 1340,318 V482 A140,18 0 0 1 1060,482 Z" class="store"/>
+  <path d="M1060,318 A140,18 0 0 0 1340,318" class="store" fill="none"/>
+  <text x="1200" y="362" class="t c">MongoDB 8 · rs0</text>
+  <text x="1200" y="382" class="s c">:27018 (Docker)</text>
+  <text x="1200" y="410" class="s c">catalog_db.products</text>
+  <text x="1200" y="430" class="s c">idx: sku (unique), category</text>
+  <text x="1200" y="450" class="s c">price stored as Decimal128</text>
+
+  <rect x="1080" y="600" width="240" height="80" rx="10" class="neu"/>
+  <text x="1200" y="626" class="t c">oplog (replica set)</text>
+  <text x="1200" y="646" class="s c">every write is recorded</text>
+  <text x="1200" y="664" class="s c">→ change stream events</text>
+  <line x1="1200" y1="500" x2="1200" y2="598" class="db"/>
+  <text x="1210" y="552" class="xs">PATCH → $set price</text>
+
+  <!-- ===================== flows ===================== -->
+  <!-- 1: request/response -->
+  <line x1="252" y1="232" x2="318" y2="232" class="blue" marker-start="url(#aBlue)" marker-end="url(#aBlue)"/>
+  <line x1="602" y1="238" x2="658" y2="238" class="blue" marker-start="url(#aBlue)" marker-end="url(#aBlue)"/>
+  <line x1="820" y1="352" x2="820" y2="398" class="blue" marker-start="url(#aBlue)" marker-end="url(#aBlue)"/>
+  <line x1="982" y1="430" x2="1058" y2="420" class="db"/>
+  <text x="1028" y="528" class="xs" fill="#2E7D32">cursor batches,</text>
+  <text x="1028" y="542" class="xs" fill="#2E7D32">fetched on demand</text>
+
+  <!-- 2: streaming -->
+  <line x1="700" y1="352" x2="588" y2="462" class="green" marker-end="url(#aGreen)"/>
+  <line x1="334" y1="476" x2="254" y2="476" class="green" marker-end="url(#aGreen)"/>
+
+  <!-- 3: push -->
+  <line x1="1078" y1="640" x2="984" y2="650" class="purple" marker-end="url(#aPurple)"/>
+  <line x1="658" y1="652" x2="588" y2="645" class="purple" marker-end="url(#aPurple)"/>
+  <line x1="334" y1="645" x2="254" y2="648" class="purple" marker-end="url(#aPurple)"/>
+
+  <!-- ===================== what to say ===================== -->
+  <rect x="40" y="800" width="430" height="130" rx="12" fill="#FFFFFF" stroke="#1565C0" stroke-width="1.5"/>
+  <text x="60" y="826" class="t" fill="#1565C0">① Request / response</text>
+  <text x="60" y="850" class="s">The controller returns a Mono at once; the Netty thread</text>
+  <text x="60" y="870" class="s">is free while MongoDB works. Not found = empty Mono →</text>
+  <text x="60" y="890" class="s">switchIfEmpty(error) → @RestControllerAdvice → 404.</text>
+  <text x="60" y="910" class="s">Search runs page + count in parallel with Mono.zip.</text>
+
+  <rect x="485" y="800" width="430" height="130" rx="12" fill="#FFFFFF" stroke="#2E7D32" stroke-width="1.5"/>
+  <text x="505" y="826" class="t" fill="#2E7D32">② Streaming (NDJSON)</text>
+  <text x="505" y="850" class="s">The catalog is a Flux read from a MongoDB cursor.</text>
+  <text x="505" y="870" class="s">First product arrives in ~0.1 s; the server never holds</text>
+  <text x="505" y="890" class="s">the full list. A slow client makes the cursor fetch</text>
+  <text x="505" y="910" class="s">less: backpressure from TCP all the way to the DB.</text>
+
+  <rect x="930" y="800" width="430" height="130" rx="12" fill="#FFFFFF" stroke="#7B1FA2" stroke-width="1.5"/>
+  <text x="950" y="826" class="t" fill="#7B1FA2">③ Push (Server-Sent Events)</text>
+  <text x="950" y="850" class="s">A MongoDB change stream tails the oplog; MongoDB filters</text>
+  <text x="950" y="870" class="s">price updates server-side; share() fans out to all clients.</text>
+  <text x="950" y="890" class="s">No polling. Heartbeats stop proxies closing idle</text>
+  <text x="950" y="910" class="s">connections. Opens on 1st client, closes on the last.</text>
+</svg>
